@@ -68,16 +68,11 @@ const rateLimit = (req, res, next) => {
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// Temporary debug logging for Railway
-console.log('🔍 Environment Debug:');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
-console.log('MONGODB_URI length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0);
-console.log('All env keys containing MONGO:', Object.keys(process.env).filter(key => key.includes('MONGO')));
-
 if (!MONGODB_URI) {
   console.error('❌ MONGODB_URI environment variable is required');
-  console.error('Available env vars:', Object.keys(process.env).sort());
+  console.error('NODE_ENV:', process.env.NODE_ENV);
+  console.error('Available vars containing ADMIN:', Object.keys(process.env).filter(k => k.includes('ADMIN')));
+  console.error('Available vars containing MONGO:', Object.keys(process.env).filter(k => k.includes('MONGO')));
   process.exit(1);
 }
 
