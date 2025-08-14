@@ -8,15 +8,72 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Security configuration
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'dev-admin-key-change-in-production';
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? 
+  process.env.ALLOWED_ORIGINS.split(',') : 
+  ['http://localhost:3000', 'http://localhost:5173', 'https://bitcoinpolicy.in'];
+
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: ALLOWED_ORIGINS,
+  credentials: true
+}));
+app.use(express.json({ limit: '10mb' }));
+
+// Security middleware for admin endpoints
+const requireAdminAuth = (req, res, next) => {
+  const apiKey = req.headers['x-admin-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+  
+  if (!apiKey || apiKey !== ADMIN_API_KEY) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Valid admin API key required'
+    });
+  }
+  
+  next();
+};
+
+// Rate limiting for form submissions (basic implementation)
+const submissionTimestamps = new Map();
+const rateLimit = (req, res, next) => {
+  const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute
+  const maxRequests = 5; // 5 requests per minute
+  
+  if (!submissionTimestamps.has(clientIP)) {
+    submissionTimestamps.set(clientIP, []);
+  }
+  
+  const timestamps = submissionTimestamps.get(clientIP);
+  // Remove old timestamps
+  while (timestamps.length > 0 && timestamps[0] < now - windowMs) {
+    timestamps.shift();
+  }
+  
+  if (timestamps.length >= maxRequests) {
+    return res.status(429).json({
+      success: false,
+      message: 'Too many requests. Please try again later.'
+    });
+  }
+  
+  timestamps.push(now);
+  next();
+};
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 
-  'mongodb+srv://gandhiyaash:100xDev2024@cluster0.ztwrafd.mongodb.net/bitcoin-policy-forms?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-console.log('Using MongoDB URI:', MONGODB_URI.substring(0, 50) + '...');
+if (!MONGODB_URI) {
+  console.error('❌ MONGODB_URI environment variable is required');
+  process.exit(1);
+}
+
+console.log('✅ MongoDB URI configured');
 console.log('Environment variables check:', {
   NODE_ENV: process.env.NODE_ENV,
   MONGODB_URI_SET: !!process.env.MONGODB_URI,
@@ -134,7 +191,7 @@ const NewsletterSignup = mongoose.model('NewsletterSignup', newsletterSignupSche
 // Routes
 
 // Contact form submission - saves to both legacy table and new policy_signup table
-app.post('/api/contact', async (req, res) => {
+app.post('/api/contact', rateLimit, async (req, res) => {
   try {
     const { name, email, organization, message } = req.body;
     
@@ -143,6 +200,37 @@ app.post('/api/contact', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Name, email, and message are required'
+      });
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+    
+    // Validate lengths
+    if (name.length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name must be less than 100 characters'
+      });
+    }
+    
+    if (message.length > 2000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message must be less than 2000 characters'
+      });
+    }
+    
+    if (organization && organization.length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'Organization name must be less than 100 characters'
       });
     }
     
@@ -204,7 +292,7 @@ app.post('/api/contact', async (req, res) => {
 });
 
 // Newsletter signup - saves to both legacy table and new policy_signup table
-app.post('/api/newsletter', async (req, res) => {
+app.post('/api/newsletter', rateLimit, async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -212,6 +300,15 @@ app.post('/api/newsletter', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Email is required'
+      });
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
       });
     }
     
@@ -266,7 +363,7 @@ app.post('/api/newsletter', async (req, res) => {
 });
 
 // Get all contact submissions (for admin)
-app.get('/api/contact', async (req, res) => {
+app.get('/api/contact', requireAdminAuth, async (req, res) => {
   try {
     const submissions = await ContactSubmission.find()
       .sort({ createdAt: -1 })
@@ -286,7 +383,7 @@ app.get('/api/contact', async (req, res) => {
 });
 
 // Get all newsletter signups (for admin)
-app.get('/api/newsletter', async (req, res) => {
+app.get('/api/newsletter', requireAdminAuth, async (req, res) => {
   try {
     const signups = await NewsletterSignup.find()
       .sort({ createdAt: -1 })
@@ -307,7 +404,7 @@ app.get('/api/newsletter', async (req, res) => {
 
 // New unified policy signup routes
 // Get all policy signups with filtering
-app.get('/api/policy-signups', async (req, res) => {
+app.get('/api/policy-signups', requireAdminAuth, async (req, res) => {
   try {
     const { type, limit = 100, page = 1, email } = req.query;
     
@@ -400,7 +497,7 @@ app.get('/api/policy-signups/stats', async (req, res) => {
 });
 
 // Delete all contact submissions (for admin)
-app.delete('/api/contact', async (req, res) => {
+app.delete('/api/contact', requireAdminAuth, async (req, res) => {
   try {
     await ContactSubmission.deleteMany({});
     // Also delete contact type from policy signups
@@ -420,7 +517,7 @@ app.delete('/api/contact', async (req, res) => {
 });
 
 // Delete all newsletter signups (for admin)
-app.delete('/api/newsletter', async (req, res) => {
+app.delete('/api/newsletter', requireAdminAuth, async (req, res) => {
   try {
     await NewsletterSignup.deleteMany({});
     // Also delete newsletter type from policy signups
@@ -440,7 +537,7 @@ app.delete('/api/newsletter', async (req, res) => {
 });
 
 // Delete all policy signups
-app.delete('/api/policy-signups', async (req, res) => {
+app.delete('/api/policy-signups', requireAdminAuth, async (req, res) => {
   try {
     const { type } = req.query;
     
@@ -466,7 +563,7 @@ app.delete('/api/policy-signups', async (req, res) => {
 });
 
 // Update policy signup status (for unsubscribing, etc.)
-app.patch('/api/policy-signups/:id', async (req, res) => {
+app.patch('/api/policy-signups/:id', requireAdminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -515,38 +612,40 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Debug endpoint for Railway deployment
-app.get('/api/debug', (req, res) => {
-  // Get all environment variables that start with certain prefixes
-  const envVars = {};
-  Object.keys(process.env).forEach(key => {
-    if (key.includes('MONGO') || key.includes('NODE') || key.includes('PORT') || key.includes('RAILWAY')) {
-      envVars[key] = key.includes('MONGO') ? 
-        (process.env[key] ? process.env[key].substring(0, 30) + '...' : 'NOT SET') : 
-        process.env[key];
-    }
-  });
+// Debug endpoint for Railway deployment (DEVELOPMENT ONLY)
+if (NODE_ENV !== 'production') {
+  app.get('/api/debug', requireAdminAuth, (req, res) => {
+    // Get all environment variables that start with certain prefixes
+    const envVars = {};
+    Object.keys(process.env).forEach(key => {
+      if (key.includes('MONGO') || key.includes('NODE') || key.includes('PORT') || key.includes('RAILWAY')) {
+        envVars[key] = key.includes('MONGO') ? 
+          (process.env[key] ? process.env[key].substring(0, 30) + '...' : 'NOT SET') : 
+          process.env[key];
+      }
+    });
 
-  res.json({
-    success: true,
-    environment: {
-      NODE_ENV: process.env.NODE_ENV,
-      PORT: process.env.PORT,
-      MONGODB_URI_SET: !!process.env.MONGODB_URI,
-      MONGODB_URI_PREVIEW: process.env.MONGODB_URI ? 
-        process.env.MONGODB_URI.substring(0, 30) + '...' : 'NOT SET',
-      ALL_RELEVANT_VARS: envVars
-    },
-    mongodb: {
-      readyState: mongoose.connection.readyState,
-      // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
-      status: mongoose.connection.readyState === 1 ? 'Connected' : 
-              mongoose.connection.readyState === 2 ? 'Connecting' : 
-              mongoose.connection.readyState === 3 ? 'Disconnecting' : 'Disconnected'
-    },
-    timestamp: new Date().toISOString()
+    res.json({
+      success: true,
+      environment: {
+        NODE_ENV: process.env.NODE_ENV,
+        PORT: process.env.PORT,
+        MONGODB_URI_SET: !!process.env.MONGODB_URI,
+        MONGODB_URI_PREVIEW: process.env.MONGODB_URI ? 
+          process.env.MONGODB_URI.substring(0, 30) + '...' : 'NOT SET',
+        ALL_RELEVANT_VARS: envVars
+      },
+      mongodb: {
+        readyState: mongoose.connection.readyState,
+        // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+        status: mongoose.connection.readyState === 1 ? 'Connected' : 
+                mongoose.connection.readyState === 2 ? 'Connecting' : 
+                mongoose.connection.readyState === 3 ? 'Disconnecting' : 'Disconnected'
+      },
+      timestamp: new Date().toISOString()
+    });
   });
-});
+}
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
