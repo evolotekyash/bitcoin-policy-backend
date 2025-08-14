@@ -1,0 +1,30 @@
+{
+  "name": "bitcoin-policy-initiative-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Bitcoin Policy Initiative website",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.17.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "bitcoin",
+    "policy",
+    "api",
+    "mongodb",
+    "express"
+  ]
+}
