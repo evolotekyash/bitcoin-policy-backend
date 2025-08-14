@@ -509,6 +509,16 @@ app.get('/api/health', (req, res) => {
 
 // Debug endpoint for Railway deployment
 app.get('/api/debug', (req, res) => {
+  // Get all environment variables that start with certain prefixes
+  const envVars = {};
+  Object.keys(process.env).forEach(key => {
+    if (key.includes('MONGO') || key.includes('NODE') || key.includes('PORT') || key.includes('RAILWAY')) {
+      envVars[key] = key.includes('MONGO') ? 
+        (process.env[key] ? process.env[key].substring(0, 30) + '...' : 'NOT SET') : 
+        process.env[key];
+    }
+  });
+
   res.json({
     success: true,
     environment: {
@@ -516,7 +526,8 @@ app.get('/api/debug', (req, res) => {
       PORT: process.env.PORT,
       MONGODB_URI_SET: !!process.env.MONGODB_URI,
       MONGODB_URI_PREVIEW: process.env.MONGODB_URI ? 
-        process.env.MONGODB_URI.substring(0, 30) + '...' : 'NOT SET'
+        process.env.MONGODB_URI.substring(0, 30) + '...' : 'NOT SET',
+      ALL_RELEVANT_VARS: envVars
     },
     mongodb: {
       readyState: mongoose.connection.readyState,
