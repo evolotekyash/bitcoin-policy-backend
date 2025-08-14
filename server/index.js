@@ -13,7 +13,15 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bitcoin-policy-forms';
+const MONGODB_URI = process.env.MONGODB_URI || 
+  'mongodb+srv://gandhiyaash:100xDev2024@cluster0.ztwrafd.mongodb.net/bitcoin-policy-forms?retryWrites=true&w=majority&appName=Cluster0';
+
+console.log('Using MongoDB URI:', MONGODB_URI.substring(0, 50) + '...');
+console.log('Environment variables check:', {
+  NODE_ENV: process.env.NODE_ENV,
+  MONGODB_URI_SET: !!process.env.MONGODB_URI,
+  PORT: process.env.PORT
+});
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB Atlas'))
