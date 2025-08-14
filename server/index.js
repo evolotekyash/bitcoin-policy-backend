@@ -506,6 +506,28 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Debug endpoint for Railway deployment
+app.get('/api/debug', (req, res) => {
+  res.json({
+    success: true,
+    environment: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      MONGODB_URI_SET: !!process.env.MONGODB_URI,
+      MONGODB_URI_PREVIEW: process.env.MONGODB_URI ? 
+        process.env.MONGODB_URI.substring(0, 30) + '...' : 'NOT SET'
+    },
+    mongodb: {
+      readyState: mongoose.connection.readyState,
+      // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+      status: mongoose.connection.readyState === 1 ? 'Connected' : 
+              mongoose.connection.readyState === 2 ? 'Connecting' : 
+              mongoose.connection.readyState === 3 ? 'Disconnecting' : 'Disconnected'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
