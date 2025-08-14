@@ -3,11 +3,13 @@
 ## ✅ Completed Steps
 - [x] Backend files pushed to GitHub
 - [x] Git repository connected to Railway
+- [x] Local backend tested and working
+- [x] MongoDB Atlas connection verified
 
-## 🎯 Next Steps to Complete
+## 🎯 IN PROGRESS: Railway Deployment
 
 ### 1. Railway Project Setup
-- [ ] Go to [Railway Dashboard](https://railway.app/dashboard)
+- [ ] Go to [Railway Dashboard](https://railway.app/dashboard) ⬅️ **DO THIS NOW**
 - [ ] Click "New Project"
 - [ ] Select "Deploy from GitHub repo"
 - [ ] Choose `bitcoin-policy-backend` repository

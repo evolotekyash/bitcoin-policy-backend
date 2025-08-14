@@ -1,0 +1,9 @@
+export { default as Home } from './Home';
+export { default as Mining } from './Mining';
+export { default as Policy } from './Policy';
+export { default as Reserve } from './Reserve';
+export { default as EducationPage } from './EducationPage';
+export { default as Analytics } from './Analytics';
+export { default as ContactPage } from './ContactPage';
+export { default as PrivacyPage } from './PrivacyPage';
+export { default as NotFound } from './NotFound';

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Atlas Data Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .results { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; min-height: 100px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🚀 MongoDB Atlas Integration Test</h1>
+    <p>This page tests the MongoDB Atlas integration with our policy signup system.</p>
+
+    <div class="test-section">
+        <h2>📝 Add Test Contact Submission</h2>
+        <button onclick="addContactSubmission()">Add Contact Submission</button>
+        <div id="contact-results" class="results">Click button to test contact submission...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>📧 Add Test Newsletter Signup</h2>
+        <button onclick="addNewsletterSignup()">Add Newsletter Signup</button>
+        <div id="newsletter-results" class="results">Click button to test newsletter signup...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Get Statistics</h2>
+        <button onclick="getStats()">Get Policy Signup Stats</button>
+        <div id="stats-results" class="results">Click button to get statistics...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 Get All Data</h2>
+        <button onclick="getAllData()">Get All Policy Signups</button>
+        <div id="data-results" class="results">Click button to get all data...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001/api';
+
+        async function addContactSubmission() {
+            const resultDiv = document.getElementById('contact-results');
+            resultDiv.innerHTML = '<span class="info">Adding contact submission...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: 'Test User ' + new Date().getTime(),
+                        email: `test${Date.now()}@bitcoinpolicy.in`,
+                        organization: 'Test Organization',
+                        message: 'This is a test message to verify MongoDB Atlas integration is working correctly.'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Contact submission added successfully!</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Failed to add contact submission</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function addNewsletterSignup() {
+            const resultDiv = document.getElementById('newsletter-results');
+            resultDiv.innerHTML = '<span class="info">Adding newsletter signup...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/newsletter`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: `newsletter${Date.now()}@bitcoinpolicy.in`
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Newsletter signup added successfully!</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Failed to add newsletter signup</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function getStats() {
+            const resultDiv = document.getElementById('stats-results');
+            resultDiv.innerHTML = '<span class="info">Getting statistics...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/policy-signups/stats`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Statistics retrieved successfully!</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Failed to get statistics</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function getAllData() {
+            const resultDiv = document.getElementById('data-results');
+            resultDiv.innerHTML = '<span class="info">Getting all data...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/policy-signups?limit=10`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<span class="success">✅ Data retrieved successfully! Found ${result.data.length} records.</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Failed to get data</span><br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Test API connectivity on page load
+        window.onload = async function() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const result = await response.json();
+                console.log('API Health Check:', result);
+            } catch (error) {
+                console.error('API Health Check Failed:', error);
+            }
+        };
+    </script>
+</body>
+</html>

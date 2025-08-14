@@ -3,7 +3,7 @@
 // Test script for Railway deployed API
 // Usage: node test-railway-api.js YOUR_RAILWAY_URL
 
-const readline = require('readline');
+import readline from 'readline';
 
 const rl = readline.createInterface({
   input: process.stdin,

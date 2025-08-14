@@ -1,0 +1,89 @@
+{
+  "title": "Bitcoin Mining Regulatory Framework for India",
+  "slug": "bitcoin-mining-regulatory-framework",
+  "description": "Comprehensive analysis of regulatory requirements for institutional Bitcoin mining operations",
+  "pages": 45,
+  "icon": "🏛️",
+  "sections": [
+    {
+      "id": "executive-summary",
+      "heading": "Executive Summary",
+      "icon": "📋",
+      "body": [
+        "India stands at a critical juncture in defining its approach to Bitcoin mining regulation. This framework proposes a comprehensive regulatory structure that balances innovation with consumer protection and financial stability.",
+        "The proposed framework establishes clear guidelines for licensing, operational standards, and compliance requirements for Bitcoin mining operations across India.",
+        "Key recommendations include the establishment of a specialized regulatory body, tiered licensing system based on operation scale, and mandatory environmental impact assessments."
+      ],
+      "highlights": [
+        "Three-tier licensing system for different scale operations",
+        "Mandatory environmental compliance for all mining facilities",
+        "Clear taxation framework with incentives for renewable energy use",
+        "Consumer protection measures for retail mining participants"
+      ]
+    },
+    {
+      "id": "policy-objectives",
+      "heading": "Policy Objectives",
+      "icon": "🎯",
+      "body": [
+        "The primary objective is to create a regulatory environment that fosters responsible Bitcoin mining while protecting national interests and promoting sustainable energy use.",
+        "Secondary objectives include establishing India as a global leader in sustainable Bitcoin mining and creating employment opportunities in emerging technologies.",
+        "The framework aims to integrate Bitcoin mining with India's renewable energy goals and grid stabilization efforts."
+      ],
+      "highlights": [
+        "Promote sustainable and responsible mining practices",
+        "Create employment in emerging technology sectors",
+        "Integrate mining with renewable energy infrastructure",
+        "Establish India as a global Bitcoin mining hub"
+      ]
+    },
+    {
+      "id": "energy-integration",
+      "heading": "Energy Integration Framework",
+      "icon": "⚡",
+      "body": [
+        "Bitcoin mining operations must demonstrate integration with renewable energy sources or utilization of stranded energy resources.",
+        "Priority licensing will be given to operations that use curtailed solar energy, excess hydroelectric capacity, or other waste energy sources.",
+        "All mining facilities above 10 MW must submit detailed energy sourcing plans and demonstrate grid stability contributions."
+      ],
+      "highlights": [
+        "Mandatory renewable energy integration for large operations",
+        "Priority licensing for stranded energy utilization",
+        "Grid stability contribution requirements",
+        "Energy efficiency benchmarks and reporting"
+      ]
+    },
+    {
+      "id": "compliance-requirements",
+      "heading": "Compliance and Monitoring",
+      "icon": "🛡️",
+      "body": [
+        "All licensed mining operations must submit quarterly reports on energy consumption, hash rate contribution, and environmental impact metrics.",
+        "Regular audits will be conducted to ensure compliance with energy efficiency standards and environmental regulations.",
+        "Non-compliance penalties range from fines to license suspension, with a graduated enforcement approach."
+      ],
+      "highlights": [
+        "Quarterly reporting requirements",
+        "Regular compliance audits",
+        "Graduated penalty structure",
+        "Environmental impact monitoring"
+      ]
+    },
+    {
+      "id": "implementation-timeline",
+      "heading": "Implementation Timeline",
+      "icon": "📅",
+      "body": [
+        "Phase 1 (Months 1-6): Establishment of regulatory framework and licensing procedures",
+        "Phase 2 (Months 7-18): Pilot program with select mining operations",
+        "Phase 3 (Months 19-36): Full implementation and scaling across India"
+      ],
+      "highlights": [
+        "6-month framework establishment period",
+        "12-month pilot program",
+        "18-month full implementation phase",
+        "Continuous monitoring and adjustment protocols"
+      ]
+    }
+  ]
+}

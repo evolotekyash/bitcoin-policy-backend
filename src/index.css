@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .font-lora {
+    font-family: 'Lora', serif;
+  }
+}
